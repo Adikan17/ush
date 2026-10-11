@@ -1,0 +1,190 @@
+//Experiment 6: Database Checkpoint – Custom Check (Validate Specific Value)
+
+package com.test.selenium;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+public class NewTest{
+public static void main(String[] args) {
+try {
+// Connect to H2 Database
+Connection con = DriverManager.getConnection(
+"jdbc:h2:./StudentDB", "sa", "");
+Statement stmt = con.createStatement();
+// Create table if it does not exist
+stmt.execute("CREATE TABLE IF NOT EXISTS STUDENT ("
++ "ID INT PRIMARY KEY, "
++ "NAME VARCHAR(50), "
++ "EMAIL VARCHAR(100))");
+// Delete previous records
+stmt.execute("DELETE FROM STUDENT");
+// Insert sample record
+stmt.executeUpdate(
+"INSERT INTO STUDENT VALUES "
++ "(1,'Ajay','ajay@gmail.com')");
+// Retrieve the record
+ResultSet rs = stmt.executeQuery(
+"SELECT NAME FROM STUDENT WHERE ID = 1");
+if (rs.next()) {
+String actualName = rs.getString("NAME");
+String expectedName = "Ajay";
+// Custom Check
+if (actualName.equals(expectedName)) {
+System.out.println("Expected Name : " + expectedName);
+System.out.println("Actual Name : " + actualName);
+System.out.println("CUSTOM CHECK PASSED");
+} else {
+System.out.println("Expected Name : " + expectedName);
+System.out.println("Actual Name : " + actualName);
+System.out.println("CUSTOM CHECK FAILED");
+}
+} else {
+System.out.println("Record Not Found");
+}
+con.close();
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+}
+Output
+Expected Name : Ajay
+Actual Name : Ajay
+CUSTOM CHECK PASSED
+Process finished with exit code 0
+
+------------------------------------------------------------------------------------------
+
+//Experiment 7(a): Data Driven Test – Dynamic Test Data Submission
+//Create Html file
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Registration</title>
+</head>
+<body>
+<h2>Student Registration Form</h2>
+<label>Name:</label>
+<input type="text" id="name"><br><br>
+<label>Email:</label>
+<input type="text" id="email"><br><br>
+<button onclick="submitForm()">Submit</button>
+<p id="result"></p>
+<script>
+function submitForm(){
+var name=document.getElementById("name").value;
+var email=document.getElementById("email").value;
+document.getElementById("result").innerHTML=
+"Registration Successful";
+}
+</script>
+</body>
+</html>
+
+//Save the Html file in the location which is in BOLD in program
+
+package com.test.selenium;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+public class DynamicDataSubmission {
+public static void main(String[] args)
+throws Exception {
+WebDriver driver = new ChromeDriver();
+// Open local HTML page
+driver.get("file:///C:/SeleniumFiles/StudentForm.html");
+// Dynamic Test Data
+String[][] data = {
+{"Ajay","ajay@gmail.com"},
+{"Rahul","rahul@gmail.com"},
+{"Anita","anita@gmail.com"}
+};
+for(int i=0;i<data.length;i++)
+{
+WebElement name = driver.findElement(By.id("name"));
+WebElement email = driver.findElement(By.id("email"));
+name.clear();
+email.clear();
+name.sendKeys(data[i][0]);
+email.sendKeys(data[i][1]);
+driver.findElement(By.tagName("button")).click();
+String result = driver.findElement(
+By.id("result")).getText();
+System.out.println("-----------------------");
+System.out.println("Test Case : "+(i+1));
+System.out.println("Name : "+data[i][0]);
+System.out.println("Email : "+data[i][1]);
+System.out.println(result);
+if(result.equals("Registration Successful"))
+System.out.println("TEST PASS");
+else
+System.out.println("TEST FAIL");
+Thread.sleep(1000);
+}
+driver.quit();
+}
+}
+
+Output
+Test Case : 1
+Name : Ajay
+Email : ajay@gmail.com
+Registration Successful
+TEST PASS
+-----------------------
+Test Case : 2
+Name : Rahul
+Email : rahul@gmail.com
+Registration Successful
+TEST PASS
+-----------------------
+Test Case : 3
+Name : Anita
+Email : anita@gmail.com
+Registration Successful
+TEST PASS
+
+-----------------------------------------------------------------------------------
+
+//Experiment 9: Silent Mode Test Execution (Headless)
+
+package com.test.selenium;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+public class SilentModeExecution {
+public static void main(String[] args) {
+// Create Chrome options
+ChromeOptions options = new ChromeOptions();
+// Enable Headless Mode
+options.addArguments("--headless=new");
+// Optional: Set browser window size
+options.addArguments("--window-size=1920,1080");
+// Launch Chrome in Headless Mode
+WebDriver driver = new ChromeDriver(options);
+// Open Google
+driver.get("https://www.google.com");
+// Find search box
+WebElement searchBox = driver.findElement(By.name("q"));
+// Enter text
+searchBox.sendKeys("Selenium WebDriver");
+// Get page title
+String title = driver.getTitle();
+System.out.println("Page Title : " + title);
+// Checkpoint
+if (title.contains("Google")) {
+System.out.println("TEST PASS");
+} else {
+System.out.println("TEST FAIL");
+}
+// Close browser
+driver.quit();
+}
+}
+
+OutPut
+Page Title : Google
+TEST PASS
